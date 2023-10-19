@@ -24,7 +24,7 @@
     "data": {
       "train": {
         "batch_size": 64,
-        "num_workers": 6,
+        "num_workers": 2,
         "datasets": [
           {
             "type": "LibrispeechDataset",
@@ -33,14 +33,14 @@
               "data_dir": "/kaggle/input/librispeech",
               "max_audio_length": 20.0,
               "max_text_length": 200,
-              "limit": 1000
+              "limit": 300
             }
           }
         ]
       },
       "val": {
         "batch_size": 64,
-        "num_workers": 6,
+        "num_workers": 2,
         "datasets": [
           {
             "type": "LibrispeechDataset",
@@ -82,14 +82,14 @@
       "type": "ReduceLROnPlateau",
       "args": {
         "factor": 0.3,
-        "patience": 100,
+        "patience": 300,
         "min_lr": 1e-5
       }
     },
     "trainer": {
-      "epochs": 50,
+      "epochs": 1000,
       "save_dir": "saved/",
-      "save_period": 10,
+      "save_period": 20,
       "verbosity": 2,
       "monitor": "min val_loss",
       "early_stop": 100,
