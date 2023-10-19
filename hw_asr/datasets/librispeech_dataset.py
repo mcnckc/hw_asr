@@ -28,12 +28,14 @@ class LibrispeechDataset(BaseDataset):
     def __init__(self, part, data_dir=None, *args, **kwargs):
         assert part in URL_LINKS or part == 'train_all'
 
+        self.kaggle = False
         if data_dir is None:
             data_dir = ROOT_PATH / "data" / "datasets" / "librispeech"
             data_dir.mkdir(exist_ok=True, parents=True)
         elif isinstance(data_dir, str):
             data_dir = Path(data_dir)
-            
+            self.kaggle = True
+
         self._data_dir = data_dir
         
         if part == 'train_all':
@@ -55,7 +57,11 @@ class LibrispeechDataset(BaseDataset):
         shutil.rmtree(str(self._data_dir / "LibriSpeech"))
 
     def _get_or_load_index(self, part):
-        index_path = self._data_dir / f"{part}_index.json"
+        if self.kaggle:
+            Path('hw_asr/datasets/librispeech').mkdir(exist_ok=True, parents=True)
+            index_path = Path('hw_asr/datasets/librispeech') / f"{part}_index.json"
+        else:
+            index_path = self._data_dir / f"{part}_index.json" 
         if index_path.exists():
             with index_path.open() as f:
                 index = json.load(f)
