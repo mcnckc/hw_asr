@@ -58,8 +58,8 @@ class LibrispeechDataset(BaseDataset):
 
     def _get_or_load_index(self, part):
         if self.kaggle:
-            Path('hw_asr/datasets/librispeech').mkdir(exist_ok=True, parents=True)
-            index_path = Path('hw_asr/datasets/librispeech') / f"{part}_index.json"
+            Path('kaggle/datasets/librispeech').mkdir(exist_ok=True, parents=True)
+            index_path = Path('kaggle/datasets/librispeech') / f"{part}_index.json"
         else:
             index_path = self._data_dir / f"{part}_index.json" 
         if index_path.exists():
