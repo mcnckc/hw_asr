@@ -1,5 +1,5 @@
 {
-    "name": "shallow_speech_one_batch",
+    "name": "sspeech_conv_med_kaggle",
     "n_gpu": 1,
     "preprocessing": {
       "sr": 16000,
@@ -24,31 +24,31 @@
     },
     "data": {
       "train": {
-        "batch_size": 10,
-        "num_workers": 0,
+        "batch_size": 64,
+        "num_workers": 2,
         "datasets": [
           {
             "type": "LibrispeechDataset",
             "args": {
-              "part": "dev-clean",
+              "part": "train-clean-100",
+              "data_dir": "/kaggle/input/librispeech",
               "max_audio_length": 20.0,
-              "max_text_length": 200,
-              "limit": 10
+              "max_text_length": 200
             }
           }
         ]
       },
       "val": {
-        "batch_size": 10,
-        "num_workers": 0,
+        "batch_size": 64,
+        "num_workers": 2,
         "datasets": [
           {
             "type": "LibrispeechDataset",
             "args": {
-              "part": "dev-clean",
+              "part": "test-clean",
+              "data_dir": "/kaggle/input/librispeech",
               "max_audio_length": 20.0,
-              "max_text_length": 200,
-              "limit": 10
+              "max_text_length": 200
             }
           }
         ]
@@ -82,20 +82,19 @@
       "type": "ReduceLROnPlateau",
       "args": {
         "factor": 0.3,
-        "patience": 100,
+        "patience": 300,
         "min_lr": 1e-5
       }
     },
     "trainer": {
-      "epochs": 50,
+      "epochs": 1000,
       "save_dir": "saved/",
-      "save_period": 5,
+      "save_period": 20,
       "verbosity": 2,
       "monitor": "min val_loss",
       "early_stop": 100,
       "visualize": "wandb",
       "wandb_project": "asr_project",
-      "len_epoch": 100,
       "grad_norm_clip": 10
     }
   }

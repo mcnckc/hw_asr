@@ -16,18 +16,21 @@ class FF(nn.Module):
         return self.net(x)
     
 class ShallowSpeechConv(BaseModel):
-    def __init__(self, n_feats, n_class, n_hidden=512, **batch):
+    def __init__(self, n_feats, n_class, n_hidden=512, n_channels=8, n_rlayers=2, **batch):
         super().__init__(n_feats, n_class, **batch)
         self.n_hidden = n_hidden
+        self.n_channels = n_channels
+        self.kernels = [(21, 6), (11, 6)]
+        self.strides = [(2, 2), (2, 1)]
         self.conv = Sequential(
-            nn.Conv2d(1, 8, (21, 6), stride=(2, 1)),
-            nn.BatchNorm2d(8),
+            nn.Conv2d(1, n_channels, self.kernels[0], stride=self.strides[0]),
+            nn.BatchNorm2d(n_channels),
             nn.ReLU(),
-            nn.Conv2d(8, 8, (11, 6), stride=(2, 1)),
-            nn.BatchNorm2d(8),
+            nn.Conv2d(n_channels, n_channels, self.kernels[1], stride=self.strides[1]),
+            nn.BatchNorm2d(n_channels),
             nn.ReLU()
         )
-        self.recurrent = nn.GRU(((((n_feats - 21) // 2 + 1) - 11) // 2 + 1) * 8, n_hidden, batch_first=True, bidirectional=True, num_layers=2)
+        self.recurrent = nn.GRU(self._transform_features_length(n_feats), n_hidden, batch_first=True, bidirectional=True, num_layers=n_rlayers)
         self.bn = nn.BatchNorm1d(n_hidden * 2)
         self.final = Sequential(
             nn.ReLU(),
@@ -35,7 +38,12 @@ class ShallowSpeechConv(BaseModel):
             nn.ReLU(),
             nn.Linear(n_hidden, n_class)
         )
-
+    def _transform_features_length(self, n_feats):
+        n = n_feats
+        for i in range(2):
+            n = (n - self.kernels[i][0]) // self.strides[i][0] + 1
+        return n * self.n_channels
+    
     def forward(self, spectrogram, **batch):
         x = self.conv(spectrogram.unsqueeze(dim=1))
         x, _ = self.recurrent(x.flatten(start_dim=1, end_dim=2).transpose(1, 2))
@@ -43,4 +51,6 @@ class ShallowSpeechConv(BaseModel):
         return {"logits": self.final(x[:, :, :self.n_hidden] + x[:, :, self.n_hidden:])}
 
     def transform_input_lengths(self, input_lengths):
-        return input_lengths - 6 + 1 - 6 + 1
+        for i in range(2):
+            input_lengths = (input_lengths - self.kernels[i][1]) // self.strides[i][1] + 1
+        return input_lengths
