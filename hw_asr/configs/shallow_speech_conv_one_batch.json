@@ -15,7 +15,7 @@
       "spectrogram": []
     },
     "arch": {
-      "type": "ShallowSpeech",
+      "type": "ShallowSpeechConv",
       "args": {
         "n_feats": 128,
         "fc_hidden": 512
@@ -23,16 +23,31 @@
     },
     "data": {
       "train": {
-        "batch_size": 32,
-        "num_workers": 6,
+        "batch_size": 10,
+        "num_workers": 0,
         "datasets": [
           {
             "type": "LibrispeechDataset",
             "args": {
-              "part": "train-clean-100",
+              "part": "dev-clean",
               "max_audio_length": 20.0,
               "max_text_length": 200,
-              "limit":256
+              "limit": 10
+            }
+          }
+        ]
+      },
+      "val": {
+        "batch_size": 10,
+        "num_workers": 0,
+        "datasets": [
+          {
+            "type": "LibrispeechDataset",
+            "args": {
+              "part": "dev-clean",
+              "max_audio_length": 20.0,
+              "max_text_length": 200,
+              "limit": 10
             }
           }
         ]
@@ -71,14 +86,15 @@
       }
     },
     "trainer": {
-      "epochs": 1000,
+      "epochs": 50,
       "save_dir": "saved/",
-      "save_period": 10,
+      "save_period": 5,
       "verbosity": 2,
       "monitor": "min val_loss",
       "early_stop": 100,
       "visualize": "wandb",
       "wandb_project": "asr_project",
+      "len_epoch": 100,
       "grad_norm_clip": 10
     }
   }
