@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from collections import defaultdict
 from .char_text_encoder import CharTextEncoder
-
+from tqdm.notebook import tqdm
 
 class Hypothesis(NamedTuple):
     text: str
@@ -26,10 +26,9 @@ class CTCCharTextEncoder(CharTextEncoder):
 
     def bs_iteration(self, state, frame, beam_size):
         new_state = defaultdict(float)
-        for (pref, last), pref_proba in state.items():
+        for (pref, last), pref_proba in tqdm(state.items()):
             for next_char_id, next_char_proba in enumerate(frame):
                 next_char = self.ind2char[next_char_id]
-                print(next_char)
                 if next_char != last and next_char != self.EMPTY_TOK:
                     new_state[(pref + next_char, next_char)] += pref_proba + next_char_proba
                 else:
@@ -49,7 +48,7 @@ class CTCCharTextEncoder(CharTextEncoder):
         assert voc_size == len(self.ind2char)
         states = {('', self.EMPTY_TOK): 1}
         print('START_BS')
-        for frame in probs:
+        for frame in tqdm(probs, desc='Frames'):
             states = self.bs_iteration(states, frame, beam_size)
         states = list(states.items())
         states.sort(reverse=True, key = lambda x: x[1])
