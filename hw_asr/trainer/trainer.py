@@ -232,7 +232,7 @@ class Trainer(BaseTrainer):
         tuples = list(zip(argmax_texts, text, argmax_texts_raw, audio_path))
         shuffle(tuples)
         rows = {}
-        for pred, target, raw_pred, bs_pred, audio_path in tuples[:examples_to_log]:
+        for pred, target, raw_pred, audio_path in tuples[:examples_to_log]:
             target = BaseTextEncoder.normalize_text(target)
             wer = calc_wer(target, pred) * 100
             cer = calc_cer(target, pred) * 100
