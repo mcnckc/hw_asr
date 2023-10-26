@@ -77,17 +77,19 @@
         }
       },
       {
-        "type": "BeamSearchWERMetric",
+        "type": "PyCTCBeamSearchWERMetric",
         "args": {
-          "name": "WER (Beam-Search)",
-          "beam_size": 5
+          "name": "WER (PyCTC-Beam-Search)",
+          "model_path": "data/LMs/3-gram.arpa",
+          "beam_size": 20
         }
       },
       {
-        "type": "BeamSearchCERMetric",
+        "type": "PyCTCBeamSearchCERMetric",
         "args": {
-          "name": "CER (Beam-Search)",
-          "beam_size": 5
+          "name": "CER (PyCTC-Beam-Search)",
+          "model_path": "data/LMs/3-gram.arpa",
+          "beam_size": 20
         }
       }
     ],
