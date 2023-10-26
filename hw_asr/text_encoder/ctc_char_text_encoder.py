@@ -29,7 +29,7 @@ class CTCCharTextEncoder(CharTextEncoder):
         for (pref, last), pref_proba in state.items():
             for next_char_id, next_char_proba in enumerate(frame):
                 next_char = self.ind2char(next_char_id)
-                if next_char != last and next_char != EMPTY_TOK:
+                if next_char != last and next_char != self.EMPTY_TOK:
                     new_state[(pref + next_char, next_char)] += pref_proba + next_char_proba
                 else:
                     new_state[(pref, next_char)] += pref_proba + next_char_proba
@@ -46,7 +46,7 @@ class CTCCharTextEncoder(CharTextEncoder):
         assert len(probs.shape) == 2
         char_length, voc_size = probs.shape
         assert voc_size == len(self.ind2char)
-        states = {('', EMPTY_TOK): 1}
+        states = {('', self.EMPTY_TOK): 1}
         for frame in probs:
             states = self.bs_iteration(states, frame, beam_size)
         states = list(states.items())
