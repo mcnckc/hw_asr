@@ -75,22 +75,6 @@
         "args": {
           "name": "CER (argmax)"
         }
-      },
-      {
-        "type": "PyCTCBeamSearchWERMetric",
-        "args": {
-          "name": "WER (PyCTC-Beam-Search)",
-          "model_path": "/kaggle/working/data/LMs/3-gram.arpa",
-          "beam_size": 20
-        }
-      },
-      {
-        "type": "PyCTCBeamSearchCERMetric",
-        "args": {
-          "name": "CER (PyCTC-Beam-Search)",
-          "model_path": "/kaggle/working/data/LMs/3-gram.arpa",
-          "beam_size": 20
-        }
       }
     ],
     "lr_scheduler": {
