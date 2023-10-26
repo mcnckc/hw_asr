@@ -12,5 +12,6 @@ torch_audiomentations
 editdistance
 wandb
 pyctcdecode
+kenlm
 torchaudio~=0.11.0
 pillow
