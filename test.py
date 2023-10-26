@@ -11,6 +11,7 @@ from hw_asr.trainer import Trainer
 from hw_asr.utils import ROOT_PATH
 from hw_asr.utils.object_loading import get_dataloaders
 from hw_asr.utils.parse_config import ConfigParser
+from hw_asr.metric.utils import calc_cer, calc_wer
 
 DEFAULT_CHECKPOINT_PATH = ROOT_PATH / "default_test_model" / "checkpoint.pth"
 
@@ -63,15 +64,26 @@ def main(config, out_file):
                 argmax = argmax[: int(batch["log_probs_length"][i])]
                 results.append(
                     {
-                        "ground_trurh": batch["text"][i],
+                        "ground_truth": batch["text"][i],
                         "pred_text_argmax": text_encoder.ctc_decode(argmax.cpu().numpy()),
+
+                        """
                         "pred_text_beam_search": text_encoder.ctc_beam_search(
                             batch["probs"][i], batch["log_probs_length"][i], beam_size=100
                         )[:10],
+                        """
+
+                        "pred_text_beam_search": ''
                     }
                 )
     with Path(out_file).open("w") as f:
         json.dump(results, f, indent=2)
+    cers, wers = [], []
+    for texts in results:
+        cers.append(calc_cer(texts['ground_truth'], texts['pred_text_argmax']))
+        wers.append(calc_wer(texts['ground_truth'], texts['pred_text_argmax']))
+    print('Final CER:', sum(cers) / len(cers) * 100)
+    print('Final WER:', sum(wers) / len(wers) * 100)
 
 
 if __name__ == "__main__":
@@ -135,6 +147,7 @@ if __name__ == "__main__":
     # first, we need to obtain config with model parameters
     # we assume it is located with checkpoint in the same folder
     model_config = Path(args.resume).parent / "config.json"
+    print('CONF path:', model_config)
     with model_config.open() as f:
         config = ConfigParser(json.load(f), resume=args.resume)
 
