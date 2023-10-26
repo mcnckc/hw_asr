@@ -1,5 +1,3 @@
-# ASR project barebones
-
 ## Installation guide
 
 ```shell
