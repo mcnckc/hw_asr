@@ -16,8 +16,7 @@ class PyCTCBeamSearchCERMetric(BaseMetric):
         self.beam_size = beam_size
         self.decoder = build_ctcdecoder(
             [text_encoder.EMPTY_TOK] + list(text_encoder.alphabet),
-            #kenlm_model_path=ROOT_PATH / model_path,  # either .arpa or .bin file
-            model_path=ROOT_PATH / model_path,
+            kenlm_model_path=ROOT_PATH / model_path,  # either .arpa or .bin file
             alpha=0.5,  # tuned on a val set
             beta=1.0,  # tuned on a val set
         )
