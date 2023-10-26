@@ -2,7 +2,7 @@ from typing import List, NamedTuple
 from itertools import groupby
 import numpy as np
 import torch
-
+from collections import defaultdict
 from .char_text_encoder import CharTextEncoder
 
 
@@ -24,6 +24,20 @@ class CTCCharTextEncoder(CharTextEncoder):
         unique = np.array([ind for ind, _ in groupby(inds)])
         return super().decode(unique[unique != self.char2ind[self.EMPTY_TOK]])
 
+    def bs_iteration(self, state, frame, beam_size):
+        new_state = defaultdict(float)
+        for (pref, last), pref_proba in state.items():
+            for next_char_id, next_char_proba in enumerate(frame):
+                next_char = self.ind2char(next_char_id)
+                if next_char != last and next_char != EMPTY_TOK:
+                    new_state[(pref + next_char, next_char)] += pref_proba + next_char_proba
+                else:
+                    new_state[(pref, next_char)] += pref_proba + next_char_proba
+        new_state = list(new_state.items())
+        new_state.sort(reverse=True, key = lambda x: x[1])
+        return dict(new_state[:beam_size])
+
+            
     def ctc_beam_search(self, probs: torch.tensor, probs_length,
                         beam_size: int = 100) -> List[Hypothesis]:
         """
@@ -32,7 +46,9 @@ class CTCCharTextEncoder(CharTextEncoder):
         assert len(probs.shape) == 2
         char_length, voc_size = probs.shape
         assert voc_size == len(self.ind2char)
-        hypos: List[Hypothesis] = []
-        # TODO: your code here
-        raise NotImplementedError
-        return sorted(hypos, key=lambda x: x.prob, reverse=True)
+        states = {('', EMPTY_TOK): 1}
+        for frame in probs:
+            states = self.bs_iteration(states, frame, beam_size)
+        states = list(states.items())
+        states.sort(reverse=True, key = lambda x: x[1])
+        return [Hypothesis(h[0][0], h[1]) for h in states]
