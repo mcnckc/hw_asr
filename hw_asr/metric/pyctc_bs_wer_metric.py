@@ -25,7 +25,7 @@ class PyCTCBeamSearchWERMetric(BaseMetric):
         cers = []
         lengths = log_probs_length.detach().numpy()
         with multiprocessing.get_context("fork").Pool() as pool:
-            pred_list = self.decoder.decode_batch(pool, log_probs, beam_width=self.beam_size)
+            pred_list = self.decoder.decode_batch(pool, log_probs.detach(), beam_width=self.beam_size)
         for pred_text, target_text in zip(pred_list, text):
             target_text = BaseTextEncoder.normalize_text(target_text)
             cers.append(calc_wer(target_text, pred_text))
